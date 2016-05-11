@@ -46,7 +46,7 @@ class Index extends \Magento\Framework\App\Action\Action
 
         try {
             $response = file_get_contents('php://input');
-            $originalNotification = \Worldpay::handleResponse($response);
+            $originalNotification = json_decode($response, true);
         }
         catch(\Exception $e) {
             echo '[NOK]';
