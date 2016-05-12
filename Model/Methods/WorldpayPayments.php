@@ -210,7 +210,7 @@ class WorldpayPayments extends AbstractMethod
         $service_key = $this->config->getServiceKey();
         $worldpay = new \Worldpay\Worldpay($service_key);
         
-        $worldpay->setPluginData('Magento2', '2.0.15');
+        $worldpay->setPluginData('Magento2', '2.0.16');
         \Worldpay\Utils::setThreeDSShopperObject([
             'shopperIpAddress' => \Worldpay\Utils::getClientIp(),
             'shopperSessionId' => $this->customerSession->getSessionId(),
