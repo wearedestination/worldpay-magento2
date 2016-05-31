@@ -1,19 +1,19 @@
 Worldpay Online Payments Magento 2
 ==================
 
-Worldpay Online Payments Magento Module - Version 2.0.16
+Worldpay Online Payments Magento Module - Version 2.0.17
 
 Tested versions..
 
-Magento 2.0.0 - 2.0.4
+Magento 2.0.0 - 2.0.7
 
-### Installation 
+### Installation
 
-composer require worldpay/magento2-module-payments 
+composer require worldpay/magento2-module-payments
 
-Creates database and clears cache 
+Creates database and clears cache
 
-php bin/magento setup:upgrade  
+php bin/magento setup:upgrade
 php bin/magento cache:clean
 
 
@@ -76,9 +76,9 @@ Payment Description
 =====
 Payment description to send to Worldpay.
 
-Environment Mode 
+Environment Mode
 =====
-Test Mode / Live Mode - 
+Test Mode / Live Mode -
 Which set of service and client keys to use on the site
 
 Test, Live - Service & Client keys
@@ -87,26 +87,29 @@ Your keys, which can be found in your Worldpay dashboard.
 
 Troubleshooting
 =================
-I cannot find 'Worldpay Payments' in the configuration page.  
---- Make sure you have uploaded the module into the root directory  
---- Clear Magento cache  
---- Resave your user  
---- Logout and log back in  
+I cannot find 'Worldpay Payments' in the configuration page.
+--- Make sure you have uploaded the module into the root directory
+--- Clear Magento cache
+--- Resave your user
+--- Logout and log back in
 
-When I click 'Worldpay Payments' it responds with a 404 error.  
---- Clear Magento cache  
---- Resave your user  
---- Logout and log back in  
+When I click 'Worldpay Payments' it responds with a 404 error.
+--- Clear Magento cache
+--- Resave your user
+--- Logout and log back in
 
-How to resave user  
-System -> Permissions -> Users -> Click your user -> Click save user  
+How to resave user
+System -> Permissions -> Users -> Click your user -> Click save user
 
-How to clear Magento cache  
-System -> Cache Management -> Click Flush Cache Storage  
+How to clear Magento cache
+System -> Cache Management -> Click Flush Cache Storage
 
 
 Changelog
 ================
+
+##### 2.0.17
+Magento 2.0.7 additional_data fix
 
 ##### 2.0.16
 APM notification fix

@@ -108,8 +108,16 @@ class WorldpayPayments extends AbstractMethod
     public function assignData(\Magento\Framework\DataObject $data)
     {
         parent::assignData($data);
+
+        $_tmpData = $data->_data;
+        $_serializedAdditionalData = serialize($_tmpData['additional_data']);
+        $additionalDataRef = $_serializedAdditionalData;
+        $additionalDataRef = unserialize($additionalDataRef);
+        $_paymentToken = $additionalDataRef['paymentToken'];
+
         $infoInstance = $this->getInfoInstance();
-        $infoInstance->setAdditionalInformation('payment_token', $data->getData('paymentToken'));
+        //$infoInstance->setAdditionalInformation('payment_token', $data->getData('paymentToken'));
+        $infoInstance->setAdditionalInformation('payment_token', $_paymentToken);
         return $this;
     }
 
@@ -210,7 +218,7 @@ class WorldpayPayments extends AbstractMethod
         $service_key = $this->config->getServiceKey();
         $worldpay = new \Worldpay\Worldpay($service_key);
         
-        $worldpay->setPluginData('Magento2', '2.0.16');
+        $worldpay->setPluginData('Magento2', '2.0.17');
         \Worldpay\Utils::setThreeDSShopperObject([
             'shopperIpAddress' => \Worldpay\Utils::getClientIp(),
             'shopperSessionId' => $this->customerSession->getSessionId(),

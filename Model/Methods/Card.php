@@ -25,11 +25,20 @@ class Card extends WorldpayPayments {
 
     public function assignData(\Magento\Framework\DataObject $data)
     {
+        $_tmpData = $data->_data;
+        $_serializedAdditionalData = serialize($_tmpData['additional_data']);
+        $additionalDataRef = $_serializedAdditionalData;
+        $additionalDataRef = unserialize($additionalDataRef);
+        $_paymentToken = $additionalDataRef['paymentToken'];
+        $_saveCard = $additionalDataRef['saveCard'];
         parent::assignData($data);
         $infoInstance = $this->getInfoInstance();
-        $infoInstance->setAdditionalInformation('payment_token', $data->getData('paymentToken'));
-        $infoInstance->setAdditionalInformation('save_card', $data->getData('saveCard'));
-        
+
+        $infoInstance->setAdditionalInformation('payment_token', $_paymentToken);
+        $infoInstance->setAdditionalInformation('save_card', $_saveCard);
+        // $infoInstance->setAdditionalInformation('payment_token', $data->getData('paymentToken'));
+        // $infoInstance->setAdditionalInformation('save_card', $data->getData('saveCard'));
+
         // If token is persistent save in db
         if($data->getData('saveCard') && ($this->customerSession->isLoggedIn() || $this->backendAuthSession->isLoggedIn())) {
 
