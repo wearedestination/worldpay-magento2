@@ -42,11 +42,13 @@ abstract class Apm extends \Magento\Framework\App\Action\Action
         \Magento\Checkout\Model\Session $checkoutSession,
         \Magento\Checkout\Helper\Data $checkoutData,
         \Magento\Framework\Controller\Result\JsonFactory $resultJsonFactory,
+        \Magento\Sales\Model\Order\Email\Sender\OrderSender $orderSender,
         $params = []
     )
     {
         $this->checkoutSession = $checkoutSession;
         $this->orderFactory = $orderFactory;
+        $this->orderSender = $orderSender;
         foreach ($this->methodCodes as $code) {
             $this->methods[$code] = $paymentHelper->getMethodInstance($code);
         }

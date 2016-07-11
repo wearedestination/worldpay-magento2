@@ -48,9 +48,9 @@ define([
             });
         },
         preparePayment: function() {
-        	$('#edit_form').off('submitOrder').on('submitOrder', this.submitAdminOrder.bind(this));
-            var resuable = $('#wp_save_card').is(':checked');
-        	var self = this;
+            $('#edit_form').off('submitOrder').on('submitOrder', this.submitAdminOrder.bind(this));
+            var resuable = true;//$('#wp_save_card').is(':checked');
+            var self = this;
             $('#wp_iframe').html('');
             $('#wp_cvc_container').html('');
             Worldpay.useTemplateForm({
@@ -72,7 +72,7 @@ define([
                         document.getElementById('wp_token').value = obj.token;
                         order._realSubmit();
                     } else {
-                  	 $('body').trigger('processStop');
+                     $('body').trigger('processStop');
                         alert("Error, please try again");
                     }
                     return false;
@@ -80,9 +80,9 @@ define([
             });
         },
         submitAdminOrder: function(event) {
-        	event.stopPropagation();
-        	Worldpay.submitTemplateForm();
-        	return false;
+            event.stopPropagation();
+            Worldpay.submitTemplateForm();
+            return false;
         },
         _create: function() {
             var self = this;
@@ -105,9 +105,9 @@ define([
                     $('#edit_form').find(':radio[name="payment[method]"]:checked').val()
                 ]
             );
-            $('#wp_save_card').on('change', function() {
-            	self.preparePayment();
-            });
+            // $('#wp_save_card').on('change', function() {
+            //  self.preparePayment();
+            // });
             if ($('.saved_tokens').length) {
                 $('.saved_tokens').first().click();
             }

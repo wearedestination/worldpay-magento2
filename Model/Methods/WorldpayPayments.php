@@ -116,7 +116,6 @@ class WorldpayPayments extends AbstractMethod
         $_paymentToken = $additionalDataRef['paymentToken'];
 
         $infoInstance = $this->getInfoInstance();
-        //$infoInstance->setAdditionalInformation('payment_token', $data->getData('paymentToken'));
         $infoInstance->setAdditionalInformation('payment_token', $_paymentToken);
         return $this;
     }
@@ -218,7 +217,7 @@ class WorldpayPayments extends AbstractMethod
         $service_key = $this->config->getServiceKey();
         $worldpay = new \Worldpay\Worldpay($service_key);
         
-        $worldpay->setPluginData('Magento2', '2.0.17');
+        $worldpay->setPluginData('Magento2', '2.0.18');
         \Worldpay\Utils::setThreeDSShopperObject([
             'shopperIpAddress' => \Worldpay\Utils::getClientIp(),
             'shopperSessionId' => $this->customerSession->getSessionId(),
@@ -376,7 +375,6 @@ class WorldpayPayments extends AbstractMethod
     }
 
     public function sendMagentoOrder($order) {
-        $this->orderSender->send($order);
         $this->checkoutSession->start();
 
         $this->checkoutSession->clearHelperData();
@@ -450,11 +448,9 @@ class WorldpayPayments extends AbstractMethod
         $siteCodes = $this->config->getSitecodes();
         if ($siteCodes) {
             foreach ($siteCodes as $siteCode) {
-                if ($siteCode['currency'] == $data['currencyCode']) {
                     $data['siteCode'] = $siteCode['site_code'];
                     $data['settlementCurrency'] = $siteCode['settlement_currency'];
                     break;
-                }
             }
         }
         if (!isset($data['settlementCurrency'])) {

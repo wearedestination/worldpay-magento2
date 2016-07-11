@@ -17,7 +17,7 @@ class Redirect extends Apm
         $quote = $this->methods[$code]->readyMagentoQuote();
 
         try {
-            $redirectUrl = $this->methods[$code]->createApmOrder($quote); 
+            $redirectUrl = $this->methods[$code]->createApmOrder($quote);
         }
         catch(\Exception $e) {
             return $result->setData([

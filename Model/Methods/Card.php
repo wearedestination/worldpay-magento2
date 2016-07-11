@@ -30,17 +30,14 @@ class Card extends WorldpayPayments {
         $additionalDataRef = $_serializedAdditionalData;
         $additionalDataRef = unserialize($additionalDataRef);
         $_paymentToken = $additionalDataRef['paymentToken'];
-        $_saveCard = $additionalDataRef['saveCard'];
+        $_saveCard = isset($additionalDataRef['saveCard']) ? $additionalDataRef['saveCard'] : false;
         parent::assignData($data);
         $infoInstance = $this->getInfoInstance();
 
         $infoInstance->setAdditionalInformation('payment_token', $_paymentToken);
         $infoInstance->setAdditionalInformation('save_card', $_saveCard);
-        // $infoInstance->setAdditionalInformation('payment_token', $data->getData('paymentToken'));
-        // $infoInstance->setAdditionalInformation('save_card', $data->getData('saveCard'));
-
         // If token is persistent save in db
-        if($data->getData('saveCard') && ($this->customerSession->isLoggedIn() || $this->backendAuthSession->isLoggedIn())) {
+        if($_saveCard && ($this->customerSession->isLoggedIn() || $this->backendAuthSession->isLoggedIn())) {
 
             if ($this->backendAuthSession->isLoggedIn()) {
                 $customerId = $this->sessionQuote->getCustomerId();
@@ -50,13 +47,13 @@ class Card extends WorldpayPayments {
             
             $token_exists = $this->savedCardFactory->create()
                 ->addFieldToFilter('customer_id', $customerId)
-                ->addFieldToFilter('token', $data->getData('paymentToken'))
+                ->addFieldToFilter('token', $_paymentToken)
                 ->getFirstItem();
 
             if (empty($token_exists['token'])) {
                 $model = $this->_objectManager->create('Worldpay\Payments\Model\SavedCard');
                 $model->setData('customer_id', $customerId);
-                $model->setData('token', $data->getData('paymentToken'));
+                $model->setData('token', $_paymentToken);
                 $model->save();
             }
 
@@ -115,20 +112,23 @@ class Card extends WorldpayPayments {
         if ($worldpayOrderCode) {
             $worldpay = $this->setupWorldpay();
             try {
-                $authorizationTransaction = $payment->getAuthorizationTransaction();
-                $worldpay->captureAuthorizedOrder($authorizationTransaction->getTxnId(), $amount*100);
-                $payment->setAdditionalInformation("worldpayOrderCode", $authorizationTransaction->getTxnId());
-                $payment->setShouldCloseParentTransaction(1)
-                ->setIsTransactionClosed(1);
-                $this->_debug('Capture Order: ' . $authorizationTransaction->getTxnId() . ' success');
-            } 
+                $worldpay->captureAuthorizedOrder($worldpayOrderCode, $amount*100);
+                $payment->setAdditionalInformation("worldpayOrderCode", $worldpayOrderCode);
+                $payment->setShouldCloseParentTransaction(1)->setIsTransactionClosed(1);
+                $this->_debug('Capture Order: ' . $worldpayOrderCode . ' success');
+            }
             catch (\Exception $e) {
-                $this->_debug('Capture Order: ' . $authorizationTransaction->getTxnId() . ' failed with ' . $e->getMessage());
+                $this->_debug('Capture Order: ' . $worldpayOrderCode . ' failed with ' . $e->getMessage());
                 throw new LocalizedException(__('Payment failed, please try again later ' . $e->getMessage()));
             }
         } else if (!$payment->getAdditionalInformation("worldpayOrderCode")) {
             $payment->setAdditionalInformation('payment_type', 'capture');
             return $this->createOrder($payment, $amount, false);
+        } else {
+             if ($this->backendAuthSession->isLoggedIn()) {
+                $payment->setAdditionalInformation('payment_type', 'capture');
+                return $this->createOrder($payment, $amount, false);
+             }
         }
         return $this;
     }

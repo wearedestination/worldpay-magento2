@@ -45,7 +45,7 @@ class Card extends \Worldpay\Payments\Model\Config
     protected $countryFactory;
 
     /**
-     * @var \Magento\Braintree\Model\System\Config\Source\Country
+     * @var \Magento\Worldpay\Model\System\Config\Source\Country
      */
     protected $sourceCountry;
 
@@ -185,7 +185,7 @@ class Card extends \Worldpay\Payments\Model\Config
      *
      * @return string
      */
-    public function getBraintreeDataJs()
+    public function getFraudDataJs()
     {
         return $this->getConfigData(self::KEY_ADVANCED_FRAUD_JS);
     }
