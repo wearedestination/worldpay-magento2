@@ -1,7 +1,7 @@
 Worldpay Online Payments Magento 2
 ==================
 
-Worldpay Online Payments Magento Module - Version 2.0.18
+Worldpay Online Payments Magento Module - Version 2.0.19
 
 Tested versions..
 
@@ -107,6 +107,9 @@ System -> Cache Management -> Click Flush Cache Storage
 
 Changelog
 ================
+
+##### 2.0.19
+Reinstate authorizeOnly option
 
 ##### 2.0.18
 SavedCard store fix
