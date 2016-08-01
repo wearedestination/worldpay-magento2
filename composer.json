@@ -7,7 +7,7 @@
         "magento/module-sales": "*",
         "magento/module-payment": "*",
         "magento/module-quote": "*",
-        "worldpay/worldpay-lib-php": "~2.0"
+        "worldpay/worldpay-lib-php": "~2.1.0"
     },
     "type": "magento2-module",
     "version": "2.0.19",

@@ -1,7 +1,7 @@
 Worldpay Online Payments Magento 2
 ==================
 
-Worldpay Online Payments Magento Module - Version 2.0.19
+Worldpay Online Payments Magento Module - Version 2.0.20
 
 Tested versions..
 
@@ -107,6 +107,9 @@ System -> Cache Management -> Click Flush Cache Storage
 
 Changelog
 ================
+
+##### 2.0.20
+Bump worldpay-lib-php dependancy version from 2.0.0 to 2.1.0
 
 ##### 2.0.19
 Reinstate authorizeOnly option
