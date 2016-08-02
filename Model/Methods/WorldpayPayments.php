@@ -163,6 +163,7 @@ class WorldpayPayments extends AbstractMethod
             if ($response['paymentStatus'] === 'SUCCESS') {
                 $this->_debug('Order Request: ' . $response['orderCode']  . ' SUCCESS');
                 $payment->setIsTransactionClosed(false)
+                    ->setTransactionId($response['orderCode'])
                     ->setShouldCloseParentTransaction(false);
                 if ($payment->isCaptureFinal($amount)) {
                     $payment->setShouldCloseParentTransaction(true);
@@ -217,7 +218,7 @@ class WorldpayPayments extends AbstractMethod
         $service_key = $this->config->getServiceKey();
         $worldpay = new \Worldpay\Worldpay($service_key);
         
-        $worldpay->setPluginData('Magento2', '2.0.19');
+        $worldpay->setPluginData('Magento2', '2.0.21');
         \Worldpay\Utils::setThreeDSShopperObject([
             'shopperIpAddress' => \Worldpay\Utils::getClientIp(),
             'shopperSessionId' => $this->customerSession->getSessionId(),
