@@ -218,7 +218,7 @@ class WorldpayPayments extends AbstractMethod
         $service_key = $this->config->getServiceKey();
         $worldpay = new \Worldpay\Worldpay($service_key);
         
-        $worldpay->setPluginData('Magento2', '2.0.21');
+        $worldpay->setPluginData('Magento2', '2.0.22');
         \Worldpay\Utils::setThreeDSShopperObject([
             'shopperIpAddress' => \Worldpay\Utils::getClientIp(),
             'shopperSessionId' => $this->customerSession->getSessionId(),
@@ -371,8 +371,21 @@ class WorldpayPayments extends AbstractMethod
     }
 
     public function createMagentoOrder($quote) {
-        $order = $this->quoteManagement->submit($quote);
-        return $order;
+        try {
+            $order = $this->quoteManagement->submit($quote);
+            return $order;
+        }
+        catch (\Exception $e) {
+            $orderId = $quote->getReservedOrderId();
+            $payment = $quote->getPayment();
+            $token = $payment->getAdditionalInformation('payment_token');
+            $amount = $quote->getGrandTotal();
+            $payment->setStatus(self::STATUS_ERROR);
+            $payment->setAmount($amount);
+            $payment->setLastTransId($orderId);
+            $this->_debug($e->getMessage());
+            throw new \Exception($e->getMessage());
+        }
     }
 
     public function sendMagentoOrder($order) {

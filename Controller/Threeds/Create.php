@@ -24,7 +24,15 @@ class Create extends Threeds
                 'error' => $e->getMessage()
             ]);
         }
-        $order = $this->wordpayPaymentsCard->createMagentoOrder($quote);
+        try {
+            $order = $this->wordpayPaymentsCard->createMagentoOrder($quote);
+        }
+        catch(\Exception $e) {
+            return $result->setData([
+                'success' => false,
+                'error' => $e->getMessage()
+            ]);
+        }
 
         $orderCode = $quote->getPayment()->getAdditionalInformation("worldpayOrderCode");
 

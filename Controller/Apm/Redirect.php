@@ -25,8 +25,15 @@ class Redirect extends Apm
                 'error' => $e->getMessage()
             ]);
         }
-
-        $order = $this->methods[$code]->createMagentoOrder($quote);
+        try {
+            $order = $this->methods[$code]->createMagentoOrder($quote);
+        }
+        catch(\Exception $e) {
+            return $result->setData([
+                'success' => false,
+                'error' => $e->getMessage()
+            ]);
+        }
 
         if (!$order) {
             return $result->setData([
