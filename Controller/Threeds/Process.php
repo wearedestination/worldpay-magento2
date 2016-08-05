@@ -33,9 +33,10 @@ class Process extends Threeds
         if ($wpOrder['paymentStatus'] == 'AUTHORIZED') {
             $wpOrder['amount'] = $wpOrder['authorizedAmount'];
         }
-       $amount = $wpOrder['amount']/100;
-       $this->wordpayPaymentsCard->updateOrder($wpOrder['paymentStatus'], $wpOrder['orderCode'], $order, $payment, $amount);
+        $amount = $wpOrder['amount']/100;
+        $this->wordpayPaymentsCard->updateOrder($wpOrder['paymentStatus'], $wpOrder['orderCode'], $order, $payment, $amount);
 
+        $this->orderSender->send($order);
 
         $quoteId = $order->getQuoteId();
 

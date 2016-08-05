@@ -1,7 +1,7 @@
 Worldpay Online Payments Magento 2
 ==================
 
-Worldpay Online Payments Magento Module - Version 2.0.22
+Worldpay Online Payments Magento Module - Version 2.0.23
 
 Tested versions..
 
@@ -107,6 +107,9 @@ System -> Cache Management -> Click Flush Cache Storage
 
 Changelog
 ================
+
+##### 2.0.23
+AuthorizeOnly orders email not sending fix
 
 ##### 2.0.22
 Better exception handling while using MagentoOrder methods
