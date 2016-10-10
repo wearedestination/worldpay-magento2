@@ -151,13 +151,10 @@ define(
                             self.isPaymentProcessing.reject(response);
                         }
                     });
-                }).fail(function () {
-                   self.messageContainer.addErrorMessage({
-                        message: "Error, please try again"
-                    });
-                });
+                }).fail(function () {});
             },
             show3DS: function (url, redirectUrl, threedsToken) {
+                window.magento2 = {t:this};
                 this.threeDSOn(true);
                 var iframeDiv = document.createElement('div');
                 iframeDiv.id = 'worldpay-threeDsFrame';

@@ -14,20 +14,34 @@ class Process extends Threeds
         $paRes = $post['PaRes'];
 
         $incrementId = $this->checkoutSession->getLastRealOrderId();
-        
+
         $order = $this->orderFactory->create()->loadByIncrementId($incrementId);
+
+        // First authorise 3ds order
+        try {
+            $this->wordpayPaymentsCard->authorise3DSOrder($paRes, $order);
+        }
+        catch(\Exception $e) {
+
+            $this->checkoutSession->restoreQuote();
+
+            echo "<script>";
+            echo "  parent.window.magento2.t.threeDSOn(false);";
+            echo "  parent.window.magento2.t.messageContainer.addErrorMessage({";
+            echo "      message: '{$e->getMessage()}'";
+            echo "  });";
+            echo "  parent.document.getElementById('wp_threeds_zone').innerHTML = '';";
+            echo "</script>";
+            die();
+        }
 
         $wordpayOrderCode = $order->getPayment()->getAdditionalInformation("worldpayOrderCode");
         $payment = $order->getPayment();
 
 
-        //First authorise 3ds order
-        $this->wordpayPaymentsCard->authorise3DSOrder($paRes, $order);
+        $worldpayClass = $this->wordpayPaymentsCard->setupWorldpay();
 
-       
-       $worldpayClass = $this->wordpayPaymentsCard->setupWorldpay();
-
-      //  Update order
+        // Update order
         $wpOrder = $worldpayClass->getOrder($wordpayOrderCode);
 
         if ($wpOrder['paymentStatus'] == 'AUTHORIZED') {

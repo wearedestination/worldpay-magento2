@@ -12,7 +12,6 @@ use Magento\Framework\Exception\LocalizedException;
 class WorldpayPayments extends AbstractMethod
 {
     protected $_isInitializeNeeded = true;
-    protected $_canRefund = true;
     protected $_isGateway = true;
     protected $_canAuthorize = true;
     protected $_canCapture = true;
@@ -20,6 +19,7 @@ class WorldpayPayments extends AbstractMethod
     protected $_canVoid = true;
     protected $_canUseInternal = true;
     protected $_canUseCheckout = true;
+    protected $_canRefund = true;
     protected $_canRefundInvoicePartial = true;
     protected $backendAuthSession;
     protected $cart;
@@ -60,6 +60,7 @@ class WorldpayPayments extends AbstractMethod
         \Magento\Sales\Model\Order\Email\Sender\OrderSender $orderSender,
         \Magento\Backend\Model\Session\Quote $sessionQuote,
         \Worldpay\Payments\Logger\Logger $wpLogger,
+        \Magento\Sales\Model\Order $order,
         \Magento\Framework\Model\ResourceModel\AbstractResource $resource = null,
         \Magento\Framework\Data\Collection\AbstractDb $resourceCollection = null,
         array $data = []
@@ -92,6 +93,7 @@ class WorldpayPayments extends AbstractMethod
         $this->orderSender = $orderSender;
         $this->sessionQuote = $sessionQuote;
         $this->logger = $wpLogger;
+        $this->order = $order;
     }
 
     public function initialize($paymentAction, $stateObject)
@@ -218,7 +220,7 @@ class WorldpayPayments extends AbstractMethod
         $service_key = $this->config->getServiceKey();
         $worldpay = new \Worldpay\Worldpay($service_key);
         
-        $worldpay->setPluginData('Magento2', '2.0.23');
+        $worldpay->setPluginData('Magento2', '2.0.24');
         \Worldpay\Utils::setThreeDSShopperObject([
             'shopperIpAddress' => \Worldpay\Utils::getClientIp(),
             'shopperSessionId' => $this->customerSession->getSessionId(),
@@ -234,6 +236,7 @@ class WorldpayPayments extends AbstractMethod
             $worldpay = $this->setupWorldpay();
             try {
                 $grandTotal = $order->getGrandTotal();
+                $a = $payment->getAdditionalInformation("worldpayOrderCode");
                 if ($grandTotal == $amount) {
                     $worldpay->refundOrder($payment->getAdditionalInformation("worldpayOrderCode"));
                 } else {
@@ -242,7 +245,8 @@ class WorldpayPayments extends AbstractMethod
                 return $this;
             }
             catch (\Exception $e) {
-                 throw new LocalizedException(__('Refund failed ' . $e->getMessage()));
+                $a = $e->getMessage();
+                throw new LocalizedException(__('Refund failed ' . $e->getMessage()));
             }
         }
     }
@@ -280,8 +284,8 @@ class WorldpayPayments extends AbstractMethod
         }
         else if ($status === 'FAILED') {
 
-            $order->cancel()->setState(Order::STATE_CANCELED, true, 'Gateway has declined the payment.')->save();
-            $payment->setStatus(PaymentMethodsAbstractPaymentMethods::STATUS_DECLINED);
+            $order->cancel()->setState(\Magento\Sales\Model\Order::STATE_CANCELED, true, 'Gateway has declined the payment.')->save();
+            $payment->setStatus(self::STATUS_DECLINED);
 
             $this->_debug('Order: ' .  $orderCode .' FAILED');
         }
@@ -384,6 +388,9 @@ class WorldpayPayments extends AbstractMethod
             $payment->setAmount($amount);
             $payment->setLastTransId($orderId);
             $this->_debug($e->getMessage());
+
+            \Magento\Checkout\Model\Session::restoreQuote();
+
             throw new \Exception($e->getMessage());
         }
     }

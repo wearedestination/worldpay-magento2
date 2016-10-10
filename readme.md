@@ -1,7 +1,7 @@
 Worldpay Online Payments Magento 2
 ==================
 
-Worldpay Online Payments Magento Module - Version 2.0.23
+Worldpay Online Payments Magento Module - Version 2.0.24
 
 Tested versions..
 
@@ -107,6 +107,10 @@ System -> Cache Management -> Click Flush Cache Storage
 
 Changelog
 ================
+
+##### 2.0.24
+Wrong error message displayed if 3DS authentication failed
+Remove exception error when email is invalid from address data
 
 ##### 2.0.23
 AuthorizeOnly orders email not sending fix

@@ -282,8 +282,15 @@ class Card extends WorldpayPayments {
         return $this;
     }
 
+    public function updateOrder($status, $orderCode, $order, $payment, $amount) {
+        parent::updateOrder($status, $orderCode, $order, $payment, $amount);
+    }
+
     public function getGenerateOrder3DSUrl() {
         return $this->urlBuilder->getUrl('worldpay/threeds/create', ['_secure' => true]);
+    }
+    public function getGenerateOrderUrl() {
+        return $this->urlBuilder->getUrl('worldpay/card/create', ['_secure' => true]);
     }
 
     public function authorise3DSOrder($paRes, $order)
@@ -293,7 +300,7 @@ class Card extends WorldpayPayments {
 
         if (!$wordpayOrderCode) {
             $this->_debug('No order id found in session!');
-            throw new \Exception('There was a problem authorising your 3DS order');
+            throw new \Exception('Failed - There was a problem authorising your 3DS order');
         }
 
         $this->_debug('Authorising 3DS Order: ' . $wordpayOrderCode . ' with paRes: ' . $paRes);
@@ -304,7 +311,7 @@ class Card extends WorldpayPayments {
            return true;
         } else {
             $this->_debug('Order: ' . $wordpayOrderCode . ' 3DS failed authorising');
-            throw new \Exception('There was a problem authorising your 3DS order');
+            throw new \Exception( (isset($response['paymentStatus']) ? $response['paymentStatus'] : "FAILED") .' - There was a problem authorising your 3DS order');
         }
     }
 

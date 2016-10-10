@@ -32,6 +32,7 @@ class Create extends Threeds
                 'success' => false,
                 'error' => $e->getMessage()
             ]);
+            exit;
         }
 
         $orderCode = $quote->getPayment()->getAdditionalInformation("worldpayOrderCode");
@@ -40,9 +41,10 @@ class Create extends Threeds
 
         $this->checkoutSession->clearHelperData();
 
-        $this->checkoutSession->setLastOrderId($order->getId())
-                ->setLastRealOrderId($order->getIncrementId())
-                ->setLastOrderStatus($order->getStatus());
+        $this->checkoutSession
+             ->setLastOrderId($order->getId())
+             ->setLastRealOrderId($order->getIncrementId())
+             ->setLastOrderStatus($order->getStatus());
 
         if ($response['paymentStatus'] !== 'PRE_AUTHORIZED') {
 
