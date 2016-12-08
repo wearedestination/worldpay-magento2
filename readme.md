@@ -5,7 +5,7 @@ Worldpay Online Payments Magento Module - Version 2.0.25
 
 Tested versions..
 
-Magento 2.0.0 - 2.0.7
+Magento 2.0.0 - 2.1.2
 
 ### Installation
 
