@@ -102,9 +102,6 @@ define(
                         }
                       } else {
                         self.isPlaceOrderActionAllowed(true);
-                        self.messageContainer.addErrorMessage({
-                            message: "Error, please try again"
-                        });
                       }
                 });
             },

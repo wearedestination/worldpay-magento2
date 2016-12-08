@@ -1,7 +1,7 @@
 Worldpay Online Payments Magento 2
 ==================
 
-Worldpay Online Payments Magento Module - Version 2.0.24
+Worldpay Online Payments Magento Module - Version 2.0.25
 
 Tested versions..
 
@@ -107,6 +107,9 @@ System -> Cache Management -> Click Flush Cache Storage
 
 Changelog
 ================
+
+##### 2.0.25
+Remove additional error trapping on APMs
 
 ##### 2.0.24
 Wrong error message displayed if 3DS authentication failed
