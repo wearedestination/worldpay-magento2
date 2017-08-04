@@ -7,6 +7,9 @@ Tested versions..
 
 Magento 2.0.0 - 2.1.2
 
+### Issues
+Please see our [support contact information]( https://developer.worldpay.com/jsonapi/faq/articles/how-can-i-contact-you-for-support) to raise an issue.
+
 ### Installation
 
 composer require worldpay/magento2-module-payments
