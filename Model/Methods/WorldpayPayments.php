@@ -60,7 +60,6 @@ class WorldpayPayments extends AbstractMethod
         \Magento\Sales\Model\Order\Email\Sender\OrderSender $orderSender,
         \Magento\Backend\Model\Session\Quote $sessionQuote,
         \Worldpay\Payments\Logger\Logger $wpLogger,
-        \Magento\Sales\Model\Order $order,
         \Magento\Framework\Model\ResourceModel\AbstractResource $resource = null,
         \Magento\Framework\Data\Collection\AbstractDb $resourceCollection = null,
         array $data = []
@@ -93,7 +92,6 @@ class WorldpayPayments extends AbstractMethod
         $this->orderSender = $orderSender;
         $this->sessionQuote = $sessionQuote;
         $this->logger = $wpLogger;
-        $this->order = $order;
     }
 
     public function initialize($paymentAction, $stateObject)
@@ -216,14 +214,24 @@ class WorldpayPayments extends AbstractMethod
         return $this;
     }
 
+    private function getSession()
+    {
+        $sessionValue = $this->checkoutSession->getWorldpay3DSSession();
+
+        if (empty($sessionValue)) {
+            $sessionValue = $this->checkoutSession->getSessionId();
+        }
+
+        return $sessionValue;
+    }
+
     public function setupWorldpay() {
         $service_key = $this->config->getServiceKey();
         $worldpay = new \Worldpay\Worldpay($service_key);
-
-        $worldpay->setPluginData('Magento2', '2.0.25');
+        $worldpay->setPluginData('Magento2', '2.0.26');
         \Worldpay\Utils::setThreeDSShopperObject([
             'shopperIpAddress' => \Worldpay\Utils::getClientIp(),
-            'shopperSessionId' => $this->customerSession->getSessionId(),
+            'shopperSessionId' => $this->getSession(),
             'shopperUserAgent' => isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : '',
             'shopperAcceptHeader' => '*/*'
         ]);
@@ -236,7 +244,6 @@ class WorldpayPayments extends AbstractMethod
             $worldpay = $this->setupWorldpay();
             try {
                 $grandTotal = $order->getGrandTotal();
-                $a = $payment->getAdditionalInformation("worldpayOrderCode");
                 if ($grandTotal == $amount) {
                     $worldpay->refundOrder($payment->getAdditionalInformation("worldpayOrderCode"));
                 } else {
@@ -245,7 +252,7 @@ class WorldpayPayments extends AbstractMethod
                 return $this;
             }
             catch (\Exception $e) {
-                $a = $e->getMessage();
+                 throw new LocalizedException(__('Refund failed ' . $e->getMessage()));
                 throw new LocalizedException(__('Refund failed ' . $e->getMessage()));
             }
         }
@@ -396,6 +403,7 @@ class WorldpayPayments extends AbstractMethod
     }
 
     public function sendMagentoOrder($order) {
+        // $this->orderSender->send($order);
         $this->checkoutSession->start();
 
         $this->checkoutSession->clearHelperData();
@@ -454,7 +462,7 @@ class WorldpayPayments extends AbstractMethod
 
 
         $data['shopperIpAddress'] = \Worldpay\Utils::getClientIp();
-        $data['shopperSessionId'] = $this->customerSession->getSessionId();
+        $data['shopperSessionId'] = $this->getSession();
         $data['shopperUserAgent'] = isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : '';
         $data['shopperAcceptHeader'] = '*/*';
 
@@ -469,9 +477,11 @@ class WorldpayPayments extends AbstractMethod
         $siteCodes = $this->config->getSitecodes();
         if ($siteCodes) {
             foreach ($siteCodes as $siteCode) {
+                // if ($siteCode['currency'] == $data['currencyCode']) {
                     $data['siteCode'] = $siteCode['site_code'];
                     $data['settlementCurrency'] = $siteCode['settlement_currency'];
                     break;
+                // }
             }
         }
         if (!isset($data['settlementCurrency'])) {

@@ -36,7 +36,7 @@ class Card extends WorldpayPayments {
 
         $infoInstance->setAdditionalInformation('payment_token', $_paymentToken);
         $infoInstance->setAdditionalInformation('save_card', $_saveCard);
-        // If token is persistent save in db
+
         if($_saveCard && ($this->customerSession->isLoggedIn() || $this->backendAuthSession->isLoggedIn())) {
 
             if ($this->backendAuthSession->isLoggedIn()) {
@@ -44,7 +44,7 @@ class Card extends WorldpayPayments {
             } else {
                 $customerId = $this->customerSession->getId();
             }
-            
+
             $token_exists = $this->savedCardFactory->create()
                 ->addFieldToFilter('customer_id', $customerId)
                 ->addFieldToFilter('token', $_paymentToken)
@@ -53,6 +53,7 @@ class Card extends WorldpayPayments {
             if (empty($token_exists['token'])) {
                 $model = $this->_objectManager->create('Worldpay\Payments\Model\SavedCard');
                 $model->setData('customer_id', $customerId);
+                // $model->setData('token', $data->getData('paymentToken'));
                 $model->setData('token', $_paymentToken);
                 $model->save();
             }
@@ -68,7 +69,7 @@ class Card extends WorldpayPayments {
         } else {
             $customerId = $this->customerSession->getId();
         }
-        
+
         $this->sessionQuote->getCustomerId();
         $tokens = $this->savedCardFactory->create()
                 ->addFieldToFilter('customer_id', $customerId)
@@ -84,7 +85,7 @@ class Card extends WorldpayPayments {
                 if ($e->getCustomCode() == 'TKN_NOT_FOUND') {
                     $t->delete();
                 }
-            }  
+            }
             if (isset($cardDetails['maskedCardNumber']) && !empty($t->getToken())) {
                  $storedCards[] = [
                     'number' => $cardDetails['maskedCardNumber'],
@@ -108,6 +109,8 @@ class Card extends WorldpayPayments {
 
     public function capture(InfoInterface $payment, $amount)
     {
+        //$additionalPaymentInformation = $payment->getAdditionalInformation();
+        // $worldpayOrderCode = isset($additionalPaymentInformation['worldpayOrderCode']) ? $additionalPaymentInformation['worldpayOrderCode'] : false;
         $worldpayOrderCode = $payment->getData('last_trans_id');
         if ($worldpayOrderCode) {
             $worldpay = $this->setupWorldpay();
@@ -119,6 +122,7 @@ class Card extends WorldpayPayments {
             }
             catch (\Exception $e) {
                 $this->_debug('Capture Order: ' . $worldpayOrderCode . ' failed with ' . $e->getMessage());
+
                 throw new LocalizedException(__('Payment failed, please try again later ' . $e->getMessage()));
             }
         } else if (!$payment->getAdditionalInformation("worldpayOrderCode")) {
@@ -150,6 +154,7 @@ class Card extends WorldpayPayments {
         $amount = $quote->getGrandTotal();
         $currency_code = $quote->getQuoteCurrencyCode();
         $authorizeOnly = $this->config->isAuthorizeOnly();
+
         return $this->createWorldpayOrder($orderId, $payment, $token, $amount, $currency_code, $authorizeOnly, true, $quote);
     }
 
@@ -162,7 +167,7 @@ class Card extends WorldpayPayments {
             $liveMode = $this->config->isLiveMode();
 
             $orderType = 'ECOM';
-            
+
             if ($this->backendAuthSession->isLoggedIn()) {
                 $orderType = 'MOTO';
                 $threeDS = false;
@@ -196,7 +201,7 @@ class Card extends WorldpayPayments {
             $this->_debug('Order Request ' . print_r($createOrderRequest, true));
             $response = $worldpay->createOrder($createOrderRequest);
             $this->_debug('Order Response '. print_r($response, true));
-            
+
             if ($response['paymentStatus'] === 'SUCCESS') {
                 $this->_debug('Order: ' .  $response['orderCode'] . ' SUCCESS');
                 $payment->setAmount($amount);
@@ -228,7 +233,7 @@ class Card extends WorldpayPayments {
                 if (!$response['is3DSOrder']) {
                     if ($payment->isCaptureFinal($amount)) {
                         $payment->setShouldCloseParentTransaction(true);
-                    }  
+                    }
                 } else {
                     return $response;
                 }
@@ -261,7 +266,7 @@ class Card extends WorldpayPayments {
 
 
     protected function createOrder(InfoInterface $payment, $amount, $authorize) {
-        
+
         $this->_debug('Worldpay Card: Begin create order');
 
         if ($payment->getOrder()) {
@@ -276,21 +281,14 @@ class Card extends WorldpayPayments {
         $token = $infoInstance->getAdditionalInformation('payment_token');
         $savedCard = $infoInstance->getAdditionalInformation('saved_card');
         $currency_code = $order->getOrderCurrencyCode();
-        
+
         $this->createWorldpayOrder($orderId, $payment, $token, $amount, $currency_code, $authorize, false, $order);
 
         return $this;
     }
 
-    public function updateOrder($status, $orderCode, $order, $payment, $amount) {
-        parent::updateOrder($status, $orderCode, $order, $payment, $amount);
-    }
-
     public function getGenerateOrder3DSUrl() {
         return $this->urlBuilder->getUrl('worldpay/threeds/create', ['_secure' => true]);
-    }
-    public function getGenerateOrderUrl() {
-        return $this->urlBuilder->getUrl('worldpay/card/create', ['_secure' => true]);
     }
 
     public function authorise3DSOrder($paRes, $order)

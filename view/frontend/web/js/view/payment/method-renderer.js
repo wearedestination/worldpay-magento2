@@ -9,7 +9,8 @@ define(
               rendererList) {
         'use strict';
 
-        window.WorldpayMagentoVersion = '2.0.25';
+        window.WorldpayMagentoVersion = '2.0.26';
+
         var defaultComponent = 'Worldpay_Payments/js/view/payment/method-renderer/card';
         var apmComponent = 'Worldpay_Payments/js/view/payment/method-renderer/apm';
         var giropayComponent = 'Worldpay_Payments/js/view/payment/method-renderer/giropay';
