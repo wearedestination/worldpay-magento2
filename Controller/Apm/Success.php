@@ -16,6 +16,7 @@ class Success extends Apm
         $order = $this->orderFactory->create()->loadByIncrementId($incrementId);
 
         $quoteId = $order->getQuoteId();
+
         sleep(1);
         $wordpayOrderCode = $order->getPayment()->getAdditionalInformation("worldpayOrderCode");
         $worldpayClass = $this->wordpayPaymentsCard->setupWorldpay();
@@ -25,7 +26,6 @@ class Success extends Apm
         $this->wordpayPaymentsCard->updateOrder($wpOrder['paymentStatus'], $wpOrder['orderCode'], $order, $payment, $amount);
 
         // $this->orderSender->send($order);
-
 
         $this->checkoutSession->setLastQuoteId($quoteId)->setLastSuccessQuoteId($quoteId);
         $this->_redirect('checkout/onepage/success');

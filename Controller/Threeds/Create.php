@@ -4,6 +4,12 @@ namespace Worldpay\Payments\Controller\Threeds;
 
 class Create extends Threeds
 {
+    private function createAndSet3DSSession()
+    {
+        \Worldpay\Utils::setThreeDSShopperObject([]);
+        $this->checkoutSession->setWorldpay3DSSession(uniqid());
+    }
+
     public function execute()
     {
         $paymentToken = $this->getRequest()->getParams();
@@ -17,6 +23,7 @@ class Create extends Threeds
 
         try {
             $quote = $this->wordpayPaymentsCard->readyMagentoQuote();
+            $this->createAndSet3DSSession();
             $response = $this->wordpayPaymentsCard->createThreedsOrder($paymentToken['token'], $quote);
         }
         catch(\Exception $e) {

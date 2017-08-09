@@ -4,6 +4,12 @@ namespace Worldpay\Payments\Controller\Threeds;
 
 class Process extends Threeds
 {
+    private function destroy3DSSession()
+    {
+        \Worldpay\Utils::setThreeDSShopperObject([]);
+        $this->checkoutSession->setWorldpay3DSSession("");
+    }
+
     public function execute()
     {
         $post = $this->getRequest()->getParams();
@@ -14,10 +20,9 @@ class Process extends Threeds
         $paRes = $post['PaRes'];
 
         $incrementId = $this->checkoutSession->getLastRealOrderId();
-
+        
         $order = $this->orderFactory->create()->loadByIncrementId($incrementId);
 
-        // First authorise 3ds order
         try {
             $this->wordpayPaymentsCard->authorise3DSOrder($paRes, $order);
         }
@@ -35,13 +40,13 @@ class Process extends Threeds
             die();
         }
 
+        $this->destroy3DSSession();
+
         $wordpayOrderCode = $order->getPayment()->getAdditionalInformation("worldpayOrderCode");
         $payment = $order->getPayment();
 
-
         $worldpayClass = $this->wordpayPaymentsCard->setupWorldpay();
 
-        // Update order
         $wpOrder = $worldpayClass->getOrder($wordpayOrderCode);
 
         if ($wpOrder['paymentStatus'] == 'AUTHORIZED') {
