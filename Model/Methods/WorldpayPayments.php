@@ -228,7 +228,7 @@ class WorldpayPayments extends AbstractMethod
     public function setupWorldpay() {
         $service_key = $this->config->getServiceKey();
         $worldpay = new \Worldpay\Worldpay($service_key);
-        $worldpay->setPluginData('Magento2', '2.26');
+        $worldpay->setPluginData('Magento2', '2.0.26');
         \Worldpay\Utils::setThreeDSShopperObject([
             'shopperIpAddress' => \Worldpay\Utils::getClientIp(),
             'shopperSessionId' => $this->getSession(),
