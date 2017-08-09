@@ -10,7 +10,7 @@
         "worldpay/worldpay-lib-php": "~2.1.0"
     },
     "type": "magento2-module",
-    "version": "",
+    "version": "2.26",
     "license": [
         "Proprietary"
     ],
