@@ -1,7 +1,7 @@
 Worldpay Online Payments Magento 2
 ==================
 
-Worldpay Online Payments Magento Module - Version 2.0.26
+Worldpay Online Payments Magento Module - Version 2.0.27
 
 Tested versions..
 
@@ -110,6 +110,9 @@ System -> Cache Management -> Click Flush Cache Storage
 
 Changelog
 ================
+
+##### 2.0.27
+Fix for multi-node deployments
 
 ##### 2.0.26
 Supported 3DS payments
