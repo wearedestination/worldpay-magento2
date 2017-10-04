@@ -228,9 +228,9 @@ class WorldpayPayments extends AbstractMethod
     public function setupWorldpay() {
         $service_key = $this->config->getServiceKey();
         $worldpay = new \Worldpay\Worldpay($service_key);
-        $worldpay->setPluginData('Magento2', '2.0.26');
+        $worldpay->setPluginData('Magento2', '2.0.27');
         \Worldpay\Utils::setThreeDSShopperObject([
-            'shopperIpAddress' => \Worldpay\Utils::getClientIp(),
+            'shopperIpAddress' => $this->stripPortNumberFromIp($this->getClientIp()),
             'shopperSessionId' => $this->getSession(),
             'shopperUserAgent' => isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : '',
             'shopperAcceptHeader' => '*/*'
@@ -460,8 +460,7 @@ class WorldpayPayments extends AbstractMethod
             "telephoneNumber"=>$shipping->getTelephone()
         ];
 
-
-        $data['shopperIpAddress'] = \Worldpay\Utils::getClientIp();
+        $data['shopperIpAddress'] = $this->stripPortNumberFromIp($this->getClientIp());
         $data['shopperSessionId'] = $this->getSession();
         $data['shopperUserAgent'] = isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : '';
         $data['shopperAcceptHeader'] = '*/*';
@@ -488,5 +487,15 @@ class WorldpayPayments extends AbstractMethod
             $data['settlementCurrency'] = $this->config->getSettlementCurrency();
         }
         return $data;
+    }
+
+    public function getClientIp()
+    {
+        return \Worldpay\Utils::getClientIp();
+    }
+
+    private function stripPortNumberFromIp($ipAddress)
+    {
+        return trim(explode(":", $ipAddress)[0]);
     }
 }
