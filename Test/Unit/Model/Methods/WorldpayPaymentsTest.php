@@ -56,6 +56,19 @@ class WorldpayPaymentsTest extends \PHPUnit_Framework_TestCase
         $this -> customerSessionMock -> expects($this->any())
             ->method('getCustomer')
             ->will($this->returnValue($this -> customerMock));
+
+        $this -> quoteManagement = $this->getMockBuilder('\Magento\Quote\Model\QuoteManagement')
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $this -> worldpayPayments = $this->getMockBuilder('\Worldpay\Payments\Model\Methods\WorldpayPayments')
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $this -> quoteRepository = $this->getMockBuilder('\Magento\Quote\Api\CartRepositoryInterface')
+            ->disableOriginalConstructor()
+            ->getMock();
+
     }
 
     public function testStripPortNumberFromIpAddressWhenGettingOrderDetails()
@@ -126,6 +139,77 @@ class WorldpayPaymentsTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals("", $actual3dsIp);
     }
 
+    public function testCallResetQuoteWhenNoNewOrderIsCreatedAndExceptionIsThrown(){
+
+        $worldpayPayments = $this->getMock(
+            '\Worldpay\Payments\Model\Methods\WorldpayPayments',
+            [ 'resetQuote'],
+            [],
+            '',
+            false
+        );
+        $order = $this->getMock(
+            'Magento\Sales\Model\Order',
+            [ 'getState'],
+            [],
+            '',
+            false
+        );
+        $payment = $this->getMock(
+            'Magento\Quote\Model\Quote\Payment',
+            ['getAdditionalInformation'],
+            [],
+            '',
+            false
+        );
+
+        $this->setMinimumConstructorValues($worldpayPayments);
+
+        $this->quoteManagement->expects($this->any())->method('submit')->with($this->anything())
+            ->will($this->throwException(new \Exception("Forced Exception")));
+        $this->quoteMock->expects($this->once())->method('getPayment')->will($this->returnValue($payment));
+        $this->sessionMock->expects($this->once())->method('getLastRealOrder')->will($this->returnValue($order));
+        $order->expects($this->once())->method('getState')->will($this->returnValue(\Magento\Sales\Model\Order::STATE_PENDING_PAYMENT));
+
+        $worldpayPayments->expects($this->once())->method('resetQuote')->with($this->quoteMock);
+
+        $this->setExpectedException('\Exception');
+        $data = $this->invokeMethod($worldpayPayments, 'createMagentoOrder', [$this->quoteMock]);
+    }
+
+    public function testCallRestoreQuoteWhenNewOrderIsCreatedAndExceptionIsThrown(){
+        $worldpayPayments = $this->getMockBuilder(WorldpayPayments::class)
+            ->setMethods(array('__construct', 'getSession', 'getClientIp'))
+            ->disableOriginalConstructor()
+            ->getMock();
+        $order = $this->getMock(
+            'Magento\Sales\Model\Order',
+            [ 'getState'],
+            [],
+            '',
+            false
+        );
+        $payment = $this->getMock(
+            'Magento\Quote\Model\Quote\Payment',
+            ['getAdditionalInformation'],
+            [],
+            '',
+            false
+        );
+
+        $this->setMinimumConstructorValues($worldpayPayments);
+
+        $this->quoteManagement->expects($this->any())->method('submit')->with($this->anything())
+            ->will($this->throwException(new \Exception("Forced Exception")));
+        $this->quoteMock->expects($this->once())->method('getPayment')->will($this->returnValue($payment));
+        $this->sessionMock->expects($this->once())->method('getLastRealOrder')->will($this->returnValue($order));
+        $order->expects($this->any())->method('getState')->will($this->returnValue(\Magento\Sales\Model\Order::STATE_NEW));
+        $this->sessionMock->expects($this->once())->method('restoreQuote')->will($this->returnValue(false));
+        $this->setExpectedException('\Exception');
+
+        $data = $this->invokeMethod($worldpayPayments, 'createMagentoOrder', [$this->quoteMock]);
+    }
+
     private function invokeMethod(&$object, $methodName, array $parameters = array())
     {
         $reflection = new \ReflectionClass(get_class($object));
@@ -149,6 +233,8 @@ class WorldpayPaymentsTest extends \PHPUnit_Framework_TestCase
         $this->setProtectedProperty($worldpayPayments, 'checkoutSession', $this->sessionMock);
         $this->setProtectedProperty($worldpayPayments, 'backendAuthSession', $this->backendSessionMock);
         $this->setProtectedProperty($worldpayPayments, 'customerSession', $this->customerSessionMock);
+        $this->setProtectedProperty($worldpayPayments, 'quoteManagement', $this->quoteManagement );
+        $this->setProtectedProperty($worldpayPayments, 'quoteRepository', $this->quoteRepository );
     }
 
 }

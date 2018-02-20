@@ -1,7 +1,7 @@
 Worldpay Online Payments Magento 2
 ==================
 
-Worldpay Online Payments Magento Module - Version 2.0.27
+Worldpay Online Payments Magento Module - Version 2.0.29
 
 Tested versions..
 
@@ -110,6 +110,13 @@ System -> Cache Management -> Click Flush Cache Storage
 
 Changelog
 ================
+
+##### 2.0.29
+Fix for wrong quote being reset when an out of stock error occurs 
+during checkout for APM payment types
+
+##### 2.0.28
+Mastercard and Maestro logo update
 
 ##### 2.0.27
 Fix for multi-node deployments

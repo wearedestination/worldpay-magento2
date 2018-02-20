@@ -228,7 +228,7 @@ class WorldpayPayments extends AbstractMethod
     public function setupWorldpay() {
         $service_key = $this->config->getServiceKey();
         $worldpay = new \Worldpay\Worldpay($service_key);
-        $worldpay->setPluginData('Magento2', '2.0.27');
+        $worldpay->setPluginData('Magento2', '2.0.29');
         \Worldpay\Utils::setThreeDSShopperObject([
             'shopperIpAddress' => $this->stripPortNumberFromIp($this->getClientIp()),
             'shopperSessionId' => $this->getSession(),
@@ -396,7 +396,12 @@ class WorldpayPayments extends AbstractMethod
             $payment->setLastTransId($orderId);
             $this->_debug($e->getMessage());
 
-            \Magento\Checkout\Model\Session::restoreQuote();
+            $lastRealOrder = $this->checkoutSession->getLastRealOrder();
+            if ($lastRealOrder != null && $lastRealOrder->getState() == \Magento\Sales\Model\Order::STATE_NEW) {
+                $this->checkoutSession->restoreQuote();
+            } else {
+                $this->resetQuote($quote);
+            }
 
             throw new \Exception($e->getMessage());
         }
@@ -487,6 +492,19 @@ class WorldpayPayments extends AbstractMethod
             $data['settlementCurrency'] = $this->config->getSettlementCurrency();
         }
         return $data;
+    }
+
+    protected function resetQuote($quote)
+    {
+        try {
+            $quote = $this->quoteRepository->get($quote->getId());
+            $quote->setIsActive(1);
+            $quote->setReservedOrderId(null);
+            $this->quoteRepository->save($quote);
+            $this->checkoutSession->replaceQuote($quote);
+        } catch (\Magento\Framework\Exception\NoSuchEntityException $e) {
+            return;
+        }
     }
 
     public function getClientIp()
