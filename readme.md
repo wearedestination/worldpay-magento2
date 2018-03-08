@@ -1,7 +1,7 @@
 Worldpay Online Payments Magento 2
 ==================
 
-Worldpay Online Payments Magento Module - Version 2.0.29
+Worldpay Online Payments Magento Module - Version 2.0.30
 
 Tested versions..
 
@@ -110,6 +110,9 @@ System -> Cache Management -> Click Flush Cache Storage
 
 Changelog
 ================
+
+##### 2.0.30
+Restore license agreement in composer file to start with lower case P to be compatible with packagist.
 
 ##### 2.0.29
 Fix for wrong quote being reset when an out of stock error occurs 
