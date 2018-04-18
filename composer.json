@@ -2,7 +2,7 @@
     "name": "worldpay/magento2-module-payments",
     "description": "Worldpay Payments",
     "require": {
-        "php": "~5.5.0|~5.6.0|~7.0.0",
+        "php": "~5.5.0|~5.6.0|~7.0.0|~7.1.0|~7.2.0",
         "magento/magento-composer-installer": "*",
         "magento/module-sales": "*",
         "magento/module-payment": "*",
